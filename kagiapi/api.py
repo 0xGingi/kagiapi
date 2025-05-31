@@ -75,7 +75,8 @@ class KagiClient:
         data: Dict[str, Union[int, str, bool]] = {"query": query}
 
         if cache is not None:
-            data["cache"] = cache
+            data["cache"] = "true" if cache else "false"
+
 
         response = self.session.post(KagiClient.BASE_URL + "/fastgpt", json=data)
         response.raise_for_status()
