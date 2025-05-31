@@ -1,4 +1,5 @@
 import os
+import re
 from typing import Optional, Union, Dict, Literal
 import requests
 from kagiapi.models import (
@@ -70,15 +71,24 @@ class KagiClient:
         response.raise_for_status()
         return response.json()
 
-    def fastgpt(self, query: str, cache: Optional[bool] = True) -> FastGPTResponse:
-        data: Dict[str, Union[int, str]] = {"query": query}
+    def fastgpt(self, query: str, cache: Optional[bool] = True, include_references: bool = True) -> FastGPTResponse:
+        data: Dict[str, Union[int, str, bool]] = {"query": query}
 
         if cache is not None:
-            data["cache"] = "true" if cache else "false"
+            data["cache"] = cache
 
         response = self.session.post(KagiClient.BASE_URL + "/fastgpt", json=data)
         response.raise_for_status()
-        return response.json()
+        
+        result = response.json()
+        
+        if not include_references and "data" in result:
+            if "references" in result["data"]:
+                result["data"]["references"] = []
+            if "output" in result["data"]:
+                result["data"]["output"] = re.sub(r'【\d+】', '', result["data"]["output"])
+        
+        return result
 
     def enrich(self, query: str) -> EnrichResponse:
         params: Dict[str, Union[int, str]] = {"q": query}

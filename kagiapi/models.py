@@ -59,7 +59,7 @@ class FastGPTReference(TypedDict):
 class FastGPTItem(TypedDict):
     output: str
     tokens: int
-    references: List[FastGPTReference]
+    references: NotRequired[List[FastGPTReference]]
 
 
 class FastGPTResponse(TypedDict):
